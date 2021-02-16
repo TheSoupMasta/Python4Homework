@@ -34,10 +34,12 @@ class Caribou(Animal):
         super(Caribou, self).__init__(type, location, habitat, is_carnivore)
         self.is_carnivore = False
 
+
 class Plant(LivingThing):
     def __init__(self, habitat, uses_sun):
         super(Plant, self).__init__(habitat)
         self.uses_sun = uses_sun
+
 
 class Flower(Plant):
     def __init__(self, habitat, uses_sun, colour):
