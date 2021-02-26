@@ -61,7 +61,8 @@ class Tree(Plant):
     def __init__(self, habitat, uses_sun, branches):
         super(Tree, self).__init__(habitat, uses_sun)
         self.branches = branches
-        
+
+    
 class Maple(Tree):
     def __init__(self, habitat, uses_sun, branches):
         super(Maple, self).__init__(habitat, uses_sun, branches)
