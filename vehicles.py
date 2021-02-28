@@ -1,131 +1,125 @@
 class Vehicle:
-    #defining __init__ function
-    def __init__(self, speed, maxSpeed, color):
-        self.speed = speed
-        self.maxSpeed = maxSpeed
-        self.color = color
+    def __init__(self, top_speed):
+        self.top_speed = top_speed
         self.speed = 0
 
-    #defining accelerate function
-    def accelerate(self):
-        self.speed += 100
-        if self.speed >= self.maxSpeed:
-            self.speed = self.maxSpeed
-            print("The maximum speed of this vehicle has been achieved.")
-        print("speed is: ", self.speed)
+    def accelerate(self, speed_change):
+        self.speed += speed_change
+        if self.speed > self.top_speed:
+            self.speed = self.top_speed
+            print("Going at max speed!")
 
-    #defining braking function
-    def brake(self):
-        self.speed -= 50
-        if self.speed <= 0:
+    def brake(self, speed_change):
+        self.speed -= speed_change
+        if self.speed < 0:
             self.speed = 0
-            print("The slowest speed of this vehicle has been achieved.")
-        print("speed is: ", self.speed)
+            print("We have come to a halt")
 
-    #defining upsize function
-    def upsize(self):
-        self.size = self.size + 10
-        print("size is: ", self.size)
-
+    def get_speed(self):
+        return self.speed
 
 class Car(Vehicle):
-    #defining __init__ function
-    def __init__(self, speed, maxSpeed, color, isreversed):
-        #using super call to inherit from other class and changed the max speed to 120
-        super(Car, self).__init__(speed, maxSpeed, color)
-        self.maxSpeed = 120
-        self.isreversed = isreversed
+    def __init__(self, top_speed):
+        super().__init__(top_speed)
+        self.reversed = False
 
-    #defining accelerate function to override
-    def accelerate(self):
-        if self.isreversed == True:
-            self.speed += 20
-            if self.speed >= self.maxSpeed:
-                self.speed = self.maxSpeed
-                print("The maximum speed of this vehicle has been achieved.")
-            print("speed is: ", self.speed)
+    def accelerate(self, speed_change):
+        if self.reversed:
+            if speed_change > 0:
+                super(Car, self).accelerate(-speed_change)
+            else:
+                super(Car, self).accelerate(speed_change)
+        else:
+            if speed_change < 0:
+                super(Car, self).accelerate(-speed_change)
+            else:
+                super(Car, self).accelerate(speed_change)
 
-        if self.isreversed == True and self.speed > 0:
-            self.isreversed = False
-            print("Reverse has deactivated")
-        elif self.isreversed == False:
-            self.speed -= 20
+    def brake(self, speed_change):
+        if self.reversed:
+            if speed_change > 0:
+                super(Car, self).brake(-speed_change)
+            else:
+                super(Car, self).brake(speed_change)
+        else:
+            if speed_change < 0:
+                super(Car, self).brake(-speed_change)
+            else:
+                super(Car, self).brake(speed_change)
 
-
-    #defining braking function to override
-    def brake(self):
-        self.speed -= 5
-        if self.speed <= 0:
-            self.isreversed = True
-            self.speed = self.speed
-            print("Reverse has activated")
-        print("speed is: ", self.speed)
-
-
-    #defining a reversing command
     def reverse(self):
-        if self.isreversed == False:
-            self.isreversed = True
+        if self.get_speed() == 0:
+            self.reversed = not self.reversed
+        else:
+            print("Can't reverse while moving!")
 
-
-    #gets current speed
-    def getcurrentspeed(self):
-        print("speed is: ", self.speed)
 
 
 class Airplane(Vehicle):
-    #defining the __init__ function
-    def __init__(self, speed, maxSpeed, color, isflying):
-        #using super call to inherit from other class and changed the max speed to 120
-        super(Airplane, self).__init__(speed, maxSpeed, color)
-        self.maxSpeed = 1000
-        self.isflying = isflying
+    def __init__(self, top_speed):
+        super().__init__(top_speed)
+        self.is_flying = False
 
-    #defining the acceleration function
-    def accelerate(self):
-        self.speed += 100
-        if self.speed >= self.maxSpeed:
-            self.speed = self.maxSpeed
-            print("The maximum speed of this vehicle has been achieved.")
-        print("speed is: ", self.speed)
-        if self.speed >= 250:
-            self.isflying = True
-            print("The plane is in the sky")
+    def accelerate(self, speed_change):
+        super().accelerate(speed_change)
+        if not self.is_flying and self.get_speed() >= 250:
+            self.is_flying = True
+            print("Plane is taking off!")
 
-        elif self.speed < 250:
-            self.isflying = False
-            print('The plane is landed')
 
-    #defining braking function to override
+    def brake(self, speed_change):
+        super().brake(speed_change)
+        if self.is_flying and self.get_speed() < 250:
+            self.is_flying = False
+            print("Plane has landed")
+
+
+class Boat(Vehicle):
+    def __init__(self, maxcapacity, top_speed):
+        super(Boat, self).__init__(top_speed)
+        self.maxcapacity = maxcapacity
+        self.currentpassengers = 0
+
+    def loadup(self, newpassengers):
+        self.currentpassengers += newpassengers
+        if self.currentpassengers >= self.maxcapacity:
+            self.currentpassengers = self.maxcapacity
+            print('Maximum safe occupancy reached.')
+
+    def accelerate(self, speed_change):
+        super().accelerate(speed_change)
+
+
     def brake(self):
-        self.speed -= 50
+        speed_change_slowing = self.currentpassengers
+        super().brake(speed_change_slowing)
         if self.speed <= 0:
             self.speed = 0
-            print("The slowest speed of this vehicle has been achieved.")
-        print("speed is: ", self.speed)
-
-        if self.speed >= 250:
-            self.isflying = True
-            print("The plane is in the sky")
-
-        elif self.speed < 250:
-            self.isflying = False
-            print('The plane is landed')
-    #defining getting speed
-    def getcurrentspeed(self):
-        print("speed is: ", self.speed)
-
-Car1 = Car(0, 120, "white", False)
-Car1.getcurrentspeed()
-Car1.brake()
-Car1.brake()
-Car1.brake()
-Car1.brake()
-Car1.brake()
-Car1.accelerate()
-Car1.accelerate()
 
 
-Plane1 = Airplane(0, 1000, "red", False)
+
+# car = Car(250)
+# print(car.get_speed())
+
+# car.accelerate(15)
+# car.brake(10)
+# print(car.get_speed())
+# car.accelerate(20)
+# print(car.get_speed())
+# car.brake(50)
+# car.reverse()
+# car.accelerate(50)
+# print(car.get_speed())
+#
+#
+# airplane = Airplane(600)
+# airplane.accelerate(200)
+# airplane.accelerate(250)
+# print(airplane.get_speed())
+# airplane.brake(300)
 
 
+boat = Boat(100, 20)
+boat.accelerate(5)
+boat.loadup(75)
+boat.brake()
