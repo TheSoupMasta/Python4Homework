@@ -1,5 +1,9 @@
 import pygame as pg
 
+#Just initializing some variables on screen size...
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+
 class dog(pg.sprite.Sprite):
 
     def __init__(self):
@@ -35,6 +39,24 @@ class dog(pg.sprite.Sprite):
 
 
     def update(self):
+        # variables for window width and height to prevent straying off screen
+        # offsetted the window width and height by 100 as using the original numbers still allowed the character to move
+        # offscrfeen.
+        self.winwidth = pg.display.get_surface().get_width()
+        self.realwinwidth = self.winwidth - 100
+        self.winheight = pg.display.get_surface().get_height()
+        self.realwinheight = self.winheight - 100
+        self.spriteylocation = self.rect.top
+        self.spritexlocation = self.rect.left
+
+        #returns the sprite if it moves offscreen
+        if self.spritexlocation > self.realwinwidth:
+            edgevar = self.spritexlocation - self.realwinwidth
+            self.rect = self.rect.move(-edgevar, 0)
+        if self.spriteylocation > self.realwinheight:
+            edgevar1 = self.spriteylocation - self.realwinheight
+            self.rect = self.rect.move(0, -edgevar1)
+
         #starting animations when key is pressed
         key_states = pg.key.get_pressed()
         if key_states[pg.K_w] or key_states[pg.K_s] or key_states[pg.K_a] or key_states[pg.K_d]:
@@ -42,26 +64,27 @@ class dog(pg.sprite.Sprite):
             if self.frame_index >= len(self.current_animation):
                 self.frame_index = 0
 
-            #changes speed for walking
+            #moves/changes speed for walking
             if self.animationset == "walking":
-                if key_states[pg.K_w]:
+                if key_states[pg.K_w] and self.spriteylocation > -10:
                     self.rect = self.rect.move(0, -10)
-                if key_states[pg.K_s]:
+                if key_states[pg.K_s] and self.spriteylocation < self.realwinheight:
                     self.rect = self.rect.move(0, 10)
-                if key_states[pg.K_a]:
+                if key_states[pg.K_a] and self.spritexlocation > -10:
                     self.rect = self.rect.move(-10, 0)
-                if key_states[pg.K_d]:
+                if key_states[pg.K_d] and self.spritexlocation < self.realwinwidth:
                     self.rect = self.rect.move(10, 0)
-            #changes speed for running
+            #moves/changes speed for running
             if self.animationset == "running":
-                if key_states[pg.K_w]:
+                if key_states[pg.K_w] and self.spriteylocation > -10:
                     self.rect = self.rect.move(0, -20)
-                if key_states[pg.K_s]:
+                if key_states[pg.K_s] and self.spriteylocation < self.realwinheight:
                     self.rect = self.rect.move(0, 20)
-                if key_states[pg.K_a]:
+                if key_states[pg.K_a] and self.spritexlocation > -10:
                     self.rect = self.rect.move(-20, 0)
-                if key_states[pg.K_d]:
+                if key_states[pg.K_d] and self.spritexlocation < self.realwinwidth:
                     self.rect = self.rect.move(20, 0)
+
 
             self.image = self.current_animation[self.frame_index]
             self.image = pg.transform.scale(self.image, (120, 100))
@@ -102,11 +125,12 @@ class dog(pg.sprite.Sprite):
 
 
 #Initalizing some stuff, don't mind this
+fullscreen = False
 pg.init()
-screen = pg.display.set_mode((600, 600), pg.RESIZABLE)
+screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pg.RESIZABLE)
 sprite = dog()
 group = pg.sprite.Group(sprite)
-
+monitor_size = [pg.display.Info().current_w, pg.display.Info().current_h]
 clock = pg.time.Clock()
 
 running = True
@@ -122,12 +146,27 @@ while running:
 
     events = pg.event.get()
     for event in events:
+        #detects the close application buttton
         if event.type == pg.QUIT:
             pg.quit()
             running = False
+
+        if event.type == pg.VIDEORESIZE:
+            if not fullscreen:
+                screen = pg.display.set_mode((event.w, event.h), pg.RESIZABLE)
+
+        if event.type == pg.KEYDOWN and event.key == pg.K_f:
+            fullscreen = not fullscreen
+            if fullscreen == True:
+                screen = pg.display.set_mode((monitor_size), pg.FULLSCREEN)
+
+            else:
+                screen = pg.display.set_mode((screen.get_width(), screen.get_height()), pg.RESIZABLE)
+
         #checks if shift key is pressed or not pressed to change the image sets (see rest of code in def set_animation)
         if event.type == pg.KEYDOWN and (event.key == pg.K_LSHIFT or event.key == pg.K_RSHIFT):
             sprite.set_animation("running", "running")
         if event.type == pg.KEYUP and (event.key == pg.K_LSHIFT or event.key == pg.K_RSHIFT):
             sprite.set_animation("walking", "walking")
+
 
